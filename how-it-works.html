@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How Lune works</title>
+<meta name="description" content="What Lune commits, what the chain holds, what a verifier checks, where Lune plugs in, and where it stands today.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="name" href="index.html">Lune</a>
+    <nav>
+      <a href="how-it-works.html" aria-current="page">How it works</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section id="committed">
+  <div class="wrap">
+    <span class="label">How it works</span>
+    <h1>What gets committed, and how often.</h1>
+    <p>Lune commits three kinds of thing. Records: any JSON object an adapter serves, put into a canonical form first, so the same record always produces the same fingerprint. Readings: sensor telemetry, appended in groups as it arrives. Structure: each unit's record names its parent, so which units make up an assembly is committed along with the units themselves.</p>
+    <p>On a schedule, the daemon closes a checkpoint. A checkpoint binds the structural tree and the telemetry range together under one root, and each checkpoint is anchored in one transaction. When the demo runs on the live deployment on Arbitrum Sepolia, it closes a checkpoint every 30 seconds; on a local chain it closes one every 10.</p>
+  </div>
+</section>
+
+<section id="chain">
+  <div class="wrap">
+    <span class="label">The chain</span>
+    <h2>What the chain holds.</h2>
+    <p>For each checkpoint, the chain holds one root: a fingerprint of everything the checkpoint committed. Beside the roots it holds the hash of the key that signs the checkpoint manifests. Both live in a small registry contract that your organisation deploys with its own key.</p>
+    <p>No data, no record and no reading goes on chain. A reader of the chain learns that something was committed, not what. The registry accepts one root per checkpoint id and refuses a second, so a root that has been anchored cannot be replaced.</p>
+    <p>The live registry on Arbitrum Sepolia: <a class="mono" href="https://sepolia.arbiscan.io/address/0xd2fa28a9c959da2709740ba12802a88b7e9f7403">0xD2Fa28a9c959Da2709740Ba12802A88b7E9F7403</a>.</p>
+  </div>
+</section>
+
+<section id="checks">
+  <div class="wrap">
+    <span class="label">The check</span>
+    <h2>What a verifier checks.</h2>
+    <p>The badge shows six checks for the record, in these words. Each one has to pass for the verdict to read ATTESTED.</p>
+    <ol class="kinds" role="list">
+      <li><span class="mono">1</span> <strong>Record matches its committed fingerprint.</strong> The verifier puts the record it was shown into canonical form, hashes it, and compares the result with the fingerprint that was committed.</li>
+      <li><span class="mono">2</span> <strong>Fingerprint is in the committed structure.</strong> It follows the path from that fingerprint up to the root of the structural tree the checkpoint names.</li>
+      <li><span class="mono">3</span> <strong>Readings are in the committed telemetry range.</strong> Each reading shown is hashed and traced to the root of the telemetry range the checkpoint covers.</li>
+      <li><span class="mono">4</span> <strong>Checkpoint recomputed.</strong> From the checkpoint's fields, including the two roots, it recomputes the checkpoint's own root.</li>
+      <li><span class="mono">5</span> <strong>Checkpoint manifest signed by the registered key.</strong> It checks the manifest's ML-DSA signature against the key whose hash your organisation registered in the contract.</li>
+      <li><span class="mono">6</span> <strong>Checkpoint root is anchored on chain.</strong> It reads the root stored on chain for that checkpoint and compares it with the one it recomputed.</li>
+    </ol>
+    <p>When readings are present, a seventh row, <strong>Shown readings match the attested readings</strong>, compares the readings shown with the attested ones.</p>
+    <p>There are three verifiers, in Go, JavaScript and Python, and they agree on a shared set of test vectors. None of them needs Lune's servers to be trusted: each works from the data shown, its proof and the chain. The proof format is a written specification, <code>verifier/SPEC.md</code>, so a third party can implement a verifier of its own.</p>
+  </div>
+</section>
+
+<section id="assemblies">
+  <div class="wrap">
+    <span class="label">Assemblies</span>
+    <h2>How one check covers an assembly.</h2>
+    <p>Each assembly's record carries a fingerprint of its members: every member's identifier and the fingerprint of that member's own record. A member that is itself an assembly carries its own, so the top fingerprint depends on every part beneath it.</p>
+    <p>Nothing else changes. It is one more attested field, so the six checks above are what verify it, and one signature check and two chain reads cover an assembly of any size.</p>
+    <p>In the viewer, the fingerprint is rebuilt from the live scene, not taken from the server. A verdict of ATTESTED therefore says the machine in front of you is the machine that was committed.</p>
+    <p>When the check fails, the viewer names the part only after confirming that the records it was given are themselves bound to the chain. If they are not, it says the assembly does not match and that it cannot say where. It never guesses.</p>
+  </div>
+</section>
+
+<section id="plugs-in">
+  <div class="wrap">
+    <span class="label">Where it plugs in</span>
+    <h2>Lune sits beside the twin, and the check runs in the viewer.</h2>
+
+    <figure class="diagram">
+      <svg viewBox="0 0 920 360" role="img" aria-labelledby="diagram-title diagram-desc">
+        <title id="diagram-title">Where Lune plugs in</title>
+        <desc id="diagram-desc">Source systems feed an adapter, which feeds the Lune daemon, where records are committed and anchored. An arrow labelled anchor runs from the daemon to a public chain at the right edge. Another runs from the daemon to the twin API, which has the Lune proxy drawn in front of it; an arrow from the proxy feeds the viewer with the badge. An arrow labelled verify runs from the public chain to the viewer.</desc>
+        <defs>
+          <marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto">
+            <path class="head" d="M0 0 L10 5 L0 10 Z"/>
+          </marker>
+        </defs>
+
+        <rect class="box" x="16" y="24" width="180" height="120" rx="8"/>
+        <text x="106" y="78">Source</text>
+        <text x="106" y="112">systems</text>
+
+        <rect class="box" x="256" y="24" width="154" height="120" rx="8"/>
+        <text x="333" y="94">Adapter</text>
+
+        <rect class="box" x="470" y="24" width="220" height="120" rx="8"/>
+        <text x="580" y="78">Lune daemon</text>
+        <text class="small" x="580" y="114">commit · anchor</text>
+
+        <rect class="box chain" x="780" y="24" width="124" height="312" rx="8"/>
+        <text x="842" y="174">Public</text>
+        <text x="842" y="208">chain</text>
+
+        <rect class="box" x="300" y="200" width="200" height="100" rx="8"/>
+        <text class="small end" x="490" y="226">Twin API</text>
+        <rect class="box" x="240" y="236" width="200" height="100" rx="8"/>
+        <text x="340" y="284">Lune proxy</text>
+        <text class="small" x="340" y="318">adds a proof</text>
+
+        <rect class="box" x="540" y="216" width="160" height="120" rx="8"/>
+        <text x="620" y="272">Viewer</text>
+        <text class="small" x="620" y="306">with badge</text>
+
+        <path class="arrow" d="M196 84 H254" marker-end="url(#head)"/>
+        <path class="arrow" d="M410 84 H468" marker-end="url(#head)"/>
+        <path class="arrow" d="M690 100 H778" marker-end="url(#head)"/>
+        <text class="small" x="735" y="88">anchor</text>
+        <path class="arrow" d="M560 144 V172 H340 V198" marker-end="url(#head)"/>
+        <path class="arrow" d="M440 320 H538" marker-end="url(#head)"/>
+        <path class="arrow" d="M780 300 H702" marker-end="url(#head)"/>
+        <text class="small" x="736" y="288">verify</text>
+      </svg>
+    </figure>
+
+    <p><strong>Adapters.</strong> An adapter tells Lune how to read a source's REST API and its MCP tools: which objects to commit, and which fields of each. Two exist, for the Nextspace knowledge twin and for an OpenUSD warehouse scene with a maintenance API, and both run on recorded fixtures of those APIs. An adapter can be written for any source that serves its objects over REST.</p>
+    <p><strong>The proxy.</strong> Lune's proxy stands in front of the twin's own REST and MCP APIs. It passes each response through and adds two members beside each object: an <code>attestation</code>, the proof a verifier needs, and an <code>attestation_reason</code>, the proxy's short account of it, such as anchored, not yet anchored or altered. The verdict is the verifier's, not the proxy's: a proof that is missing or fails to check reads NOT VERIFIED.</p>
+    <p><strong>The viewer badge.</strong> In Omniverse Kit, the badge is an extension: a Provenance section in the Property panel with the six checks, a label in the viewport over the selected object, which shows the selected object's verified readings from the past minute under the verdict, and a box around the object in the verdict's colour. For an assembly the panel adds one line for the whole assembly, or one line for each part that changed. In a browser, it is two web components; the daemon's own demo page uses them to show the same verdicts. Both rest on the verifiers above, so any viewer that can run one of them can host the badge.</p>
+    <p><strong>The chain.</strong> Development runs on a local Anvil chain, and the live deployment is on Arbitrum Sepolia. The chain is a matter of configuration, and Lune can anchor on any EVM chain.</p>
+  </div>
+</section>
+
+<section id="attestable">
+  <div class="wrap">
+    <span class="label">What can be attested</span>
+    <h2>The full list, in the terms of your own systems.</h2>
+    <div class="table-wrap" role="region" aria-label="What can be attested" tabindex="0">
+      <table class="attest">
+        <thead>
+          <tr>
+            <th scope="col">Kind of data</th>
+            <th scope="col">Where it comes from</th>
+            <th scope="col">What the verdict means</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Asset identity and class</td>
+            <td>Asset registers and PLM</td>
+            <td>The identifier and class shown are the ones committed. A reclassified asset reads NOT VERIFIED and names the field.</td>
+          </tr>
+          <tr>
+            <td>Parent and assembly membership</td>
+            <td>Asset registers and PLM, and the 3D scene's hierarchy</td>
+            <td>The asset sits under the parent committed for it. A part given a different parent reads NOT VERIFIED, and from its assembly it is reported as moved, with both parents named.</td>
+          </tr>
+          <tr>
+            <td>Whole assemblies, to any depth</td>
+            <td>Asset registers and PLM, and the 3D scene's hierarchy</td>
+            <td>Every part beneath the assembly is as committed, in one check. A part that changed, moved, was added or is missing is named, with the assembly it belongs to.</td>
+          </tr>
+          <tr>
+            <td>Maintenance records: service history, hours, next procedure</td>
+            <td>Maintenance and work-order systems</td>
+            <td>The last service date, the service hours and the next procedure shown are the ones the maintenance system recorded.</td>
+          </tr>
+          <tr>
+            <td>Procedure documents, by hash</td>
+            <td>Inspection and procedure documents</td>
+            <td>The document's fingerprint in the record is the committed one. A viewer can check a copy of the document against it (designed; not yet exercised).</td>
+          </tr>
+          <tr>
+            <td>Sensor readings, in time-bounded groups (vibration and temperature in the demo)</td>
+            <td>Sensor historians and live telemetry</td>
+            <td>Each reading shown is in the telemetry range a checkpoint committed. PENDING means it is committed and the anchor has not landed yet.</td>
+          </tr>
+          <tr>
+            <td>The scene object itself, through identity attributes on the USD prim</td>
+            <td>The 3D scene</td>
+            <td>The object selected in the viewer carries the identifier of the record that was checked, so the verdict belongs to that object. A bin moved to another place in the scene reads NOT VERIFIED and names its scene path.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <span class="label">Limits</span>
+    <h2>What it does not do.</h2>
+    <ul class="kinds" role="list">
+      <li><strong>It attests records and readings, not derived answers.</strong> A query that computes an average returns a number Lune never committed. The readings it averaged are attested; the average is not.</li>
+      <li><strong>It does not make a wrong record right.</strong> If a source system recorded the wrong value, Lune commits that value faithfully. What it adds is that a value changed after it was committed becomes visible.</li>
+      <li><strong>There is nothing on the chain to hide: it holds roots and a key hash, never a record or a reading.</strong> The records and readings stay in your systems.</li>
+      <li><strong>A whole-assembly check covers what assemblies hold.</strong> A record committed beneath a part, with no assembly above it, is covered by no assembly's fingerprint.</li>
+      <li><strong>It does not replace access control, backups or the twin itself.</strong> Who may see a record, how it is kept safe and where it is shown stay as they are. Lune checks what is shown.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="status">
+  <div class="wrap">
+    <span class="label">Status</span>
+    <h2>Where it stands.</h2>
+    <p>As of <time datetime="2026-11-20">2026-11-20</time>, Lune's demo anchors to Arbitrum Sepolia, a public test network (chain id 421614), in the registry at the address above, deployed at block 326446150; when it runs, it closes a checkpoint every 30 seconds. The demo scene holds 269 units, and a whole assembly checks in one step: a conveyor of 12 parts, or the scene's 268. The badge runs in Omniverse Kit 110 and in a browser; the whole-assembly check runs in the Kit badge. The two adapters run on recorded fixtures of their APIs. The benchmark harness measured 29,947 readings per second of sustained ingestion on an Apple M1 Max.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer" id="contact">
+  <div class="wrap">
+    <span>Lune Development</span>
+    <span>Patent pending</span>
+    <a href="mailto:lune.development@gmail.com">lune.development@gmail.com</a>
+  </div>
+</footer>
+
+</body>
+</html>

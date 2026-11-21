@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lune</title>
+<meta name="description" content="Lune shows, in the viewer you already use, whether a value on screen still matches the value that was recorded.">
+<link rel="stylesheet" href="site.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="name" href="index.html">Lune</a>
+    <nav>
+      <a href="how-it-works.html">How it works</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+<section id="opening">
+  <div class="wrap">
+    <h1>The value on your screen. Is it the value that was recorded?</h1>
+    <p class="lede">Lune sits beside your digital twin, commits what flows through it, anchors a fingerprint on a public chain, and lets any viewer show whether a value still matches.</p>
+    <a class="button" href="#see-it">See it in a viewer</a>
+  </div>
+</section>
+
+<section id="worry">
+  <div class="wrap">
+    <span class="label">The worry</span>
+    <h2>A value travels a long way before it reaches you.</h2>
+    <p>A digital twin draws on several systems at once. A maintenance system holds the asset records, sensors send readings, a scene describes where everything stands. The twin reaches each of them through adapters, caches, scheduled syncs and, now and then, an edit made by hand.</p>
+    <p>Each of those steps is a place where a value can change between the system that recorded it and the screen that shows it. A sync runs late. A cache keeps an old copy. Someone corrects a field in one place and not in the other.</p>
+    <p>Nobody is lying, and that is the problem. Nothing in the viewer can tell a faithful value from a drifted one. Both look the same on screen, and both are shown with the same confidence.</p>
+    <p class="closing">Which of these numbers would you sign your name to?</p>
+  </div>
+</section>
+
+<section id="see-it">
+  <div class="wrap">
+    <span class="label">See it</span>
+    <h2>The verdict sits next to the value, where you already look.</h2>
+    <p>This is a warehouse in a 3D viewer. Select a bin and a small badge appears above it. The badge checks the bin's record and its recent sensor readings against what Lune committed, and says whether they still match.</p>
+
+    <figure class="lead">
+      <img class="shot" src="img/lead.png" width="1150" height="620" alt="The Lune badge over a bin in a 3D warehouse scene: WH1-BIN-0001 ATTESTED, with the readings from the past minute under it and a green box around the bin">
+      <figcaption>Bin WH1-BIN-0001 in the warehouse scene. The badge reads <span class="pill good">ATTESTED</span> and shows the bin's recent vibration and temperature readings under it, and the bin is boxed in the colour of the verdict.</figcaption>
+    </figure>
+
+    <div class="panels">
+      <figure>
+        <img class="shot" src="img/panel-attested.png" width="646" height="590" alt="The Property panel for the bin as recorded: ATTESTED, six checks passed">
+        <figcaption>The bin as recorded: <span class="pill good">ATTESTED</span>, all six checks passed.</figcaption>
+      </figure>
+      <figure>
+        <img class="shot" src="img/panel-drifted.png" width="646" height="590" alt="The Property panel for the same bin after it was moved: NOT VERIFIED at the first check, naming the field that changed">
+        <figcaption>The same bin, moved after its record was committed: <span class="pill bad">NOT VERIFIED</span> at the first check, which names the field that changed.</figcaption>
+      </figure>
+    </div>
+
+    <div class="readout" aria-label="Attestation details for a checkpoint of the demo on Arbitrum Sepolia">
+      <div>WH1-BIN-0001 <span class="pill good">ATTESTED</span></div>
+      <div>chain 421614</div>
+      <div>registry 0xD2Fa28a9c959Da2709740Ba12802A88b7E9F7403</div>
+      <div>checkpoint #253</div>
+      <div>block 326513037</div>
+    </div>
+
+    <p>When the demo runs, it anchors a new checkpoint on Arbitrum Sepolia every 30 seconds. The badge is the <a href="how-it-works.html#plugs-in">same code in a browser</a>, and any viewer can host it.</p>
+  </div>
+</section>
+
+<section id="assembly">
+  <div class="wrap">
+    <span class="label">Whole assemblies</span>
+    <h2>One check for the whole machine.</h2>
+    <p>A conveyor is not one record. It is a drive, a belt and a chassis, and the drive is a motor, a gearbox and two bearings. Twelve parts in three levels, each with its own record.</p>
+    <p>Select the conveyor and Lune checks all of them at once. The viewer rebuilds the whole assembly from what the scene actually holds and verifies it in a single step. If every part is as it was committed, the box around the machine is green.</p>
+
+    <figure class="lead">
+      <a href="img/assembly-attested.png"><img class="shot" src="img/assembly-attested-view.png" width="930" height="610" alt="The conveyor selected in the 3D viewer, boxed in green and labelled WH1-CONVEYOR-0001 ATTESTED, 12 parts"></a>
+      <img class="shot detail" src="img/assembly-attested-panel.png" width="468" height="380" alt="The conveyor's Provenance panel: ATTESTED, six checks passed, and the line Whole assembly checked: 12 parts in 3 levels, as of checkpoint #449">
+      <figcaption>The conveyor as committed: <span class="pill good">ATTESTED</span>, and the panel reads &ldquo;Whole assembly checked: 12 parts in 3 levels&rdquo;. <a href="img/assembly-attested.png">See the whole viewer window.</a></figcaption>
+    </figure>
+
+    <p>Change one bearing and the box turns red. The panel does not just say something is wrong. It names the part and where it sits.</p>
+
+    <figure class="lead">
+      <a href="img/assembly-changed.png"><img class="shot" src="img/assembly-changed-view.png" width="930" height="610" alt="The same conveyor after one bearing was reclassified, boxed in red and labelled WH1-CONVEYOR-0001 NOT VERIFIED"></a>
+      <img class="shot detail" src="img/assembly-changed-panel.png" width="468" height="380" alt="The conveyor's Provenance panel: NOT VERIFIED, and in red the line Changed inside: WH1-BEARING-0001 (class), in WH1-DRIVE-0001">
+      <figcaption>The same conveyor after one bearing was reclassified: <span class="pill bad">NOT VERIFIED</span>, and the panel reads &ldquo;Changed inside: WH1-BEARING-0001 (class), in WH1-DRIVE-0001&rdquo;. <a href="img/assembly-changed.png">See the whole viewer window.</a></figcaption>
+    </figure>
+
+    <p>It also tells a part that changed from one that moved, one that was added and one that is missing. The whole warehouse, 268 parts in five levels, checks the same way in under a second. <a href="how-it-works.html#assemblies">How one check covers an assembly.</a></p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <span class="label">How it works</span>
+    <h2>Three steps, and the last one runs in your viewer.</h2>
+    <ol class="steps" role="list">
+      <li>
+        <h3>Commit</h3>
+        <p>On a schedule, Lune takes every record and reading that has flowed through since the last time and folds them into one fingerprint, called a checkpoint. The data itself stays where it was.</p>
+      </li>
+      <li>
+        <h3>Anchor</h3>
+        <p>Lune writes the checkpoint's fingerprint to a public chain, signed by a key your organisation controls. From then on nobody can change it, and anyone can read it.</p>
+      </li>
+      <li>
+        <h3>Verify</h3>
+        <p>When a viewer shows a value, it recomputes the path from that value up to the anchored fingerprint and shows the verdict next to the value. The check runs in the viewer; Lune's own servers are not trusted for it.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <span class="label">What can be attested</span>
+    <h2>Five kinds of thing, from the same warehouse.</h2>
+    <ul class="kinds" role="list">
+      <li><strong>Records.</strong> The bin's entry in the maintenance system, including where it stands.</li>
+      <li><strong>Readings.</strong> The vibration and temperature values from the bin's sensors, committed in time-bounded groups with each checkpoint.</li>
+      <li><strong>Structure.</strong> Which bin grid each bin belongs to, so a bin re-homed to another grid shows as drift.</li>
+      <li><strong>Assemblies.</strong> A machine and everything in it, checked as one, with the changed part named.</li>
+      <li><strong>Documents.</strong> A procedure document for the bin can be attested by its fingerprint, so a changed copy no longer matches.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="beside">
+  <div class="wrap">
+    <span class="label">Where it sits</span>
+    <h2>Beside your twin, not instead of it.</h2>
+    <p>Lune can connect, through an adapter, to anything your twin already serves over REST. Two adapters exist: one for the Nextspace knowledge twin, and one for an OpenUSD scene with a maintenance API. The badge exists as an Omniverse Kit extension and as two web components. The chain is a configuration choice: the live deployment is on Arbitrum Sepolia, and Lune can anchor on any EVM chain.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer" id="contact">
+  <div class="wrap">
+    <span>Lune Development</span>
+    <span>Patent pending</span>
+    <a href="mailto:lune.development@gmail.com">lune.development@gmail.com</a>
+  </div>
+</footer>
+
+</body>
+</html>
