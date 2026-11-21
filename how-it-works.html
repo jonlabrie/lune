@@ -54,7 +54,7 @@
       <li><span class="mono">6</span> <strong>Checkpoint root is anchored on chain.</strong> It reads the root stored on chain for that checkpoint and compares it with the one it recomputed.</li>
     </ol>
     <p>When readings are present, a seventh row, <strong>Shown readings match the attested readings</strong>, compares the readings shown with the attested ones.</p>
-    <p>There are three verifiers, in Go, JavaScript and Python, and they agree on a shared set of test vectors. None of them needs Lune's servers to be trusted: each works from the data shown, its proof and the chain. The proof format is a written specification, <code>verifier/SPEC.md</code>, so a third party can implement a verifier of its own.</p>
+    <p>There are three verifiers, in Go, JavaScript and Python, and they agree on a shared set of test vectors. None of them needs Lune's servers to be trusted: each works from the data shown, its proof and the chain. The viewer is told which registry to trust in its own settings. It does not take that from Lune. The proof format is a written specification, <code>verifier/SPEC.md</code>, so a third party can implement a verifier of its own.</p>
   </div>
 </section>
 
